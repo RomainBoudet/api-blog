@@ -1,0 +1,22 @@
+{
+  "name": "api-blog",
+  "version": "1.0.0",
+  "description": "A small API who can deliver Json articles for my new react front :",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "seed": "node data/import.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RomainBoudet/api-blog.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/RomainBoudet/api-blog/issues"
+  },
+  "homepage": "https://github.com/RomainBoudet/api-blog#readme"
+}
