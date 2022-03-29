@@ -1,4 +1,5 @@
 import db from '../database.mjs';
+import chalk from 'chalk';
 
 class Post {
 
@@ -28,20 +29,18 @@ class Post {
             WHERE post.id = $1;
         `, [id]);
 
-            if (!result.rows[0]) { // si pas de données
-                // je retourne null
-                // a voir si pas plus pertinent => throw new Error("Pas de posts pour la catégorie " + categoryId);
-                return null;
+            if (!result.rows[0]) { 
+                // si pas de données
+                // le constructeur d'une Erreur attend un message en argument
+                throw new Error("Pas de post avec l'id " + id);
             }
 
-            // à partir des données brutes, je crée une instance
+            // à partir des données brutes, je crée une instance de Post
             return new Post(result.rows[0]);
-            // une instance de Post
-
 
         } catch (error) {
 
-            console.log("Erreur dans la méthode findOne du Model Post : ", error)
+            console.log(chalk.yellow("Erreur dans la méthode findOne du Model Post : ", error));
         }
 
     }
@@ -61,7 +60,7 @@ class Post {
                 `);
 
             if (!result.rows[0]) {
-                return null;
+                throw new Error("Pas de post en BDD !");
             }
 
             // et les retourne, sous forme d'instances de Post
@@ -69,7 +68,7 @@ class Post {
 
         } catch (error) {
 
-            console.log("Erreur dans la méthode findAll du Model Post : ", error)
+            console.log(chalk.yellow("Erreur dans la méthode findAll du Model Post : ", error));
 
         }
 
@@ -78,7 +77,6 @@ class Post {
     static async findByCategory(categoryId) {
 
         try {
-
             const result = await db.query(`
             SELECT
                 post.*,
@@ -89,14 +87,14 @@ class Post {
         `, [categoryId]);
 
             if (!result.rows[0]) {
-                return null;
+                throw new Error("Pas de posts pour la catégorie " + categoryId);
             }
 
             return result.rows.map(post => new Post(post));
 
         } catch (error) {
 
-            console.log("Erreur dans la méthode findByCategory du Model Post : ", error)
+            console.log(chalk.yellow("Erreur dans la méthode findByCategory du Model Post : ", error));
 
         }
 
@@ -158,7 +156,7 @@ class Post {
 
         } catch (error) {
 
-            console.log("Erreur dans la méthode save du Model Post : ", error)
+            console.log(chalk.yellow("Erreur dans la méthode save du Model Post : ", error));
         }
 
 
