@@ -1,4 +1,4 @@
-
+import db from '../database.mjs';
 
 const postController = {
 
@@ -9,7 +9,7 @@ const postController = {
 
 
         } catch (error) {
-            console.log('Rrror dans la méthode allPosts du postController : ', error);
+            console.log('Error dans la méthode allPosts du postController : ', error);
         }
 
     }
