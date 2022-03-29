@@ -4,7 +4,7 @@
   "description": "A small API who can deliver Json articles for my new react front :",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js",
+    "start": "nodemon index.mjs",
     "seed": "node data/import.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
