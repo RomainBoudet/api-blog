@@ -105,7 +105,7 @@ class Post {
      * sauvegarde un post et le retourne avec son id
      * @param {Post} thePost 
      */
-    async save(thePost) {
+    async save() {
 
         try {
 
@@ -115,15 +115,15 @@ class Post {
 
             // toutes les données en commun sont préparées
             const data = [
-                thePost.slug,
-                thePost.title,
-                thePost.excerpt,
-                thePost.content
+                this.slug,
+                this.title,
+                this.excerpt,
+                this.content
             ];
             // si categoryId est présent
-            if (thePost.categoryId) {
-                query = "INSERT INTO post (slug, title, excerpt, content, category_id) VALUES ($1, $2, $3, $4, $5) RETURNING id;";
-                data.push(thePost.categoryId);
+            if (this.categoryId) {
+                query = "INSERT INTO post (slug, title, excerpt, content, category_id) VALUES ($1, $2, $3, $4, $5) RETURNING *;";
+                data.push(this.categoryId);
 
             } else { // si category est présent plutôt que categoryId
                 query = `
@@ -131,10 +131,10 @@ class Post {
                 SELECT $1, $2, $3, $4, id
                 FROM category
                 WHERE label = $5
-                RETURNING id;
+                RETURNING *;
             `;
 
-                data.push(thePost.category);
+                data.push(this.category);
             }
 
             // je ne pioche que les données parmi l'objet result qui m'est retourné
@@ -145,9 +145,10 @@ class Post {
                 } = await db.query(query, data);
 
                 // l'affecter au post
-                thePost.id = rows[0].id;
+               this.id = rows[0].id;
 
-                // pas besoin de le retourner car il est passé par référence, donc l'objet d'origine est modifié
+                return new Post (rows[0]);
+
             } catch (err) {
                 throw new Error("Un article avec ce slug existe déjà");
             }

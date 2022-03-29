@@ -58,17 +58,17 @@ const postController = {
     },
 
     newPost: async (req, res) => {
-        // on crée directement notre model à partir des données envoyées dans le payload
-        const thePost = new Post(req.body);
-
+    
         // ici, thePost peut contenir l'une des 2 propriétés suivantes :
         // - un categoryId, l'id d'une ligne dans la table category
         // - une category, le libellé d'une ligne dans la table category
 
         try {
-            // pas de retour, postMapper intervient directement sur son paramètre, l'objet étant passé par référence
-            await Post.save(thePost);
-            res.json(thePost);
+
+            const thePost = new Post(req.body);
+            const newPost = await thePost.save();
+
+            res.json(newPost);
 
         } catch (err) {
 
