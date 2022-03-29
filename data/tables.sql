@@ -22,14 +22,14 @@ CREATE DOMAIN text_valid AS text -- un domaine pour les textes valides = mini 2 
 
 CREATE DOMAIN text_slug AS text -- un domaine permettant de vérifier la présence d'un / via une regex
 	CHECK (
-		VALUE ~* '^/{1,}$'
+		VALUE ~* '^\/{1}.*$'
 	);
 
 
 
 CREATE TABLE category (
     id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    "route" text_slug UNIQUE NOT NULL, -- "route" semble un mot réservé, i est passe entre quotes...
+    "route" text_slug UNIQUE NOT NULL, -- "route" semble un mot réservé,  => entre quotes...
     label text_valid UNIQUE NOT NULL
 );
 

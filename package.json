@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "nodemon index.js",
-    "seed": "node data/import.js",
+    "seed": "node data/import.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,5 +18,14 @@
   "bugs": {
     "url": "https://github.com/RomainBoudet/api-blog/issues"
   },
-  "homepage": "https://github.com/RomainBoudet/api-blog#readme"
+  "homepage": "https://github.com/RomainBoudet/api-blog#readme",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "joi": "^17.6.0",
+    "pg": "^8.7.3",
+    "redis": "^4.0.4"
+  }
 }

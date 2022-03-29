@@ -1,0 +1,22 @@
+[
+    {
+        "route": "/",
+        "label": "Accueil"
+    },
+    {
+        "route": "/angular",
+        "label": "Angular"
+    },
+    {
+        "route": "/react",
+        "label": "React"
+    },
+    {
+        "route": "/RB",
+        "label": "RB"
+    },
+    {
+        "route": "/autre",
+        "label": "Autre"
+    }
+]
