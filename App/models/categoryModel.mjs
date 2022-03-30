@@ -13,6 +13,12 @@ class Category {
         }
     }
 
+    /**
+     * Méthode chargé d'aller chercher toutes les informations relatives à toutes les catégories (label et route)
+     * @returns - les informations de toutes les catégories présentes en BDD
+     * @static - une méthode static
+     * @async - une méthode asynchrone
+     */
     static async findAll() {
         try {
 
@@ -43,7 +49,8 @@ class Category {
      * Méthode chargé d'aller insérer les informations relatives à une catégorie passé en paramétre
      * @param route - la route d'une catégorie
      * @param label - le label d'une catégorie
-     * @returns - les informations de la nouvelle categorie enregistrées
+     * @returns - Aucune donnée n'est retournée
+     * @instance - une méthode d'insatnce
      * @async - une méthode asynchrone
      */
     async save() {

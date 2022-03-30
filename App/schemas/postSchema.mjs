@@ -1,5 +1,17 @@
 import Joi from 'joi';
 
+/**
+ * Valide les informations reçu dans le body et envoyé par les utilisateurs
+ * @name postschema 
+ * @group Joi - Vérifie les informations du body.
+ * @property {string} title - Le titre de l'article ne contenant pas de caractéres spéciaux et min 2 et max 100 caractéres.
+ * @property {string} slug - Le slug d'un article (identifiant texte unique d’une publication), ne contenant pas de caractéres spéciaux et min 2 et max 100 caractéres.
+ * @property {string} content - Le contenu d'un article ne contenant pas de caractéres spéciaux et min 10 caractéres.
+ * @property {string} excerpt - Le résumé de l'article ne contenant pas de caractéres spéciaux et min 10 caractéres.
+ * @property {string} category - Le nom de la catégorie de l'article, de 2 a 25 caractéres, sans caractéres spéciaux.
+ * @property {string} categoryId - L'id de la catégorie de l'article, un nombre entier et positif.
+ * @return {json} messages - Un texte adapté en cas d'érreur, en json, informant l'utilisateur d'un non respect des régles du schéma de validation
+ */
 const postschema = Joi.object({
     title: Joi.string()
     .max(100)

@@ -9,8 +9,23 @@ import {
     closest
 } from 'fastest-levenshtein';
 
+/**
+ * Une méthode qui va servir a intéragir avec le model Post pour les intéractions avec la BDD
+ * Retourne un json
+ * @name paiementController
+ * @param {Express.Request} req - l'objet représentant la requête
+ * @param {Express.Response} res - l'objet représentant la réponse
+ * @return {JSON}  - une donnée en format json
+ */
 const postController = {
 
+    /**
+     * Méthode chargé d'aller chercher les informations relatives à tous les posts
+     * @name allPost
+     * @param {Express.Response} res - l'objet représentant la réponse
+     * @returns - Tous les postes présent en base de données
+     * @async - une méthode asynchrone
+     */
     allPosts: async (_, res) => {
 
         try {
@@ -28,6 +43,14 @@ const postController = {
 
     },
 
+    /**
+     * Méthode chargé d'aller chercher les informations relatives à un post via son id
+     * @name onePost
+     * @param {Express.Request} req - l'objet représentant la requête
+     * @param {Express.Response} res - l'objet représentant la réponse
+     * @returns - Le post demandé avec son id
+     * @async - une méthode asynchrone
+     */
     onePost: async (req, res) => {
 
         try {
@@ -46,7 +69,14 @@ const postController = {
         }
     },
 
-
+    /**
+     * Méthode chargé d'aller chercher les informations relatives à un post via son id
+     * @name postsByCategory
+     * @param {Express.Request} req - l'objet représentant la requête
+     * @param {Express.Response} res - l'objet représentant la réponse
+     * @returns - Le post demandé avec son id
+     * @async - une méthode asynchrone
+     */
     postsByCategory: async (req, res) => {
 
         try {
@@ -64,6 +94,14 @@ const postController = {
         }
     },
 
+    /**
+     * Méthode chargé d'aller chercher enregistrer un nouveau post
+     * @name newPost
+     * @param {Express.Request} req - l'objet représentant la requête
+     * @param {Express.Response} res - l'objet représentant la réponse
+     * @returns - Le post nouvellement enregistré avec son id
+     * @async - une méthode asynchrone
+     */
     newPost: async (req, res) => {
 
         // ici, thePost peut contenir l'une des 2 propriétés suivantes :
@@ -125,11 +163,14 @@ const postController = {
                 };
 
                 // ici il n'existe pas de category déjé enregistrées en BDD
-                console.log("req.body.category => ",req.body.category);
+                console.log("req.body.category => ", req.body.category);
 
-                const theCategory = new Category({route: `/${req.body.category.replace(' ', '_').toLowerCase()}`, label: `${req.body.category}`});
+                const theCategory = new Category({
+                    route: `/${req.body.category.replace(' ', '_').toLowerCase()}`,
+                    label: `${req.body.category}`
+                });
                 await theCategory.save();
-                
+
             }
 
             // ici il n'y a pas de catégory dans le body mais un categoryId !

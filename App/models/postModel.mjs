@@ -9,6 +9,11 @@ class Post {
     excerpt;
     content;
     category;
+    categoryId;
+
+    set category_id(val) {
+        this.categoryId = val;
+    }
 
     constructor(data) {
         for (const prop in data) {
@@ -16,7 +21,13 @@ class Post {
         }
     }
 
-
+    /**
+     * Méthode chargé d'aller chercher les informations relatives à un post passé en paramétre
+     * @param id- un id d'un post
+     * @returns - les informations d'un post demandées
+     * @static - une méthode static
+     * @async - une méthode asynchrone
+     */
     static async findOne(id) {
 
         try {
@@ -29,12 +40,14 @@ class Post {
             WHERE post.id = $1;
         `, [id]);
 
-            if (!result.rows[0]) { 
+            if (!result.rows[0]) {
                 // si pas de données
                 // le constructeur d'une Erreur attend un message en argument
                 // throw new Error("Pas de post avec l'id " + id);
                 console.log(chalk.yellow(`Pas de post avec l'id ${id}`));
-                return {message:`Pas de post avec l'id ${id}`}
+                return {
+                    message: `Pas de post avec l'id ${id}`
+                }
             }
 
             // à partir des données brutes, je crée une instance de Post
@@ -47,7 +60,12 @@ class Post {
 
     }
 
-
+    /**
+     * Méthode chargé d'aller chercher les informations relatives à tous les posts présent en BDD
+     * @returns - les informations d'un post demandées
+     * @static - une méthode static
+     * @async - une méthode asynchrone
+     */
     static async findAll() {
 
         try {
@@ -64,7 +82,9 @@ class Post {
             if (!result.rows[0]) {
                 //throw new Error("Pas de post en BDD !");
                 console.log(chalk.yellow("Pas de posts en BDD !"));
-                return {message: "Pas de posts en BDD !"};
+                return {
+                    message: "Pas de posts en BDD !"
+                };
             }
 
             // et les retourne, sous forme d'instances de Post
@@ -77,6 +97,13 @@ class Post {
 
     }
 
+    /**
+     * Méthode chargé d'aller chercher les informations relatives à tous les posts qui ont la catégorie demandée
+     * @param categoryId- un id d'une catégorie
+     * @returns - La list des posts avec la catégorie demandé
+     * @static - une méthode static
+     * @async - une méthode asynchrone
+     */
     static async findByCategory(categoryId) {
 
         try {
@@ -92,7 +119,9 @@ class Post {
             if (!result.rows[0]) {
                 // throw new Error("Pas de posts pour la catégorie " + categoryId);
                 console.log(chalk.yellow(`Pas de posts pour la catégorie avec l'identifiant ${categoryId}`));
-                return {message: `Pas de posts pour la catégorie avec l'identifiant ${categoryId}`}
+                return {
+                    message: `Pas de posts pour la catégorie avec l'identifiant ${categoryId}`
+                }
             }
 
             return result.rows.map(post => new Post(post));
@@ -103,12 +132,13 @@ class Post {
 
         }
 
-
     }
 
     /**
-     * sauvegarde un post et le retourne avec son id
-     * @param {Post} thePost 
+     * Méthode chargé d'aller insérer les informations relatives à un post
+     * @returns - Les données du post nouvellement inséré
+     * @instance - une méthode d'insatnce
+     * @async - une méthode asynchrone
      */
     async save() {
 
@@ -150,14 +180,16 @@ class Post {
                 } = await db.query(query, data);
 
                 // l'affecter au post
-               this.id = rows[0].id;
+                this.id = rows[0].id;
 
-                return new Post (rows[0]);
+                return new Post(rows[0]);
 
             } catch (err) {
-               // throw new Error("Un article avec ce slug existe déjà");
-               console.log(chalk.yellow("Un article avec ce slug existe déjà : ", err));
-                return {message: "Un article avec ce slug existe déjà. Votre article n'a pas pu être enregistré."};
+                // throw new Error("Un article avec ce slug existe déjà");
+                console.log(chalk.yellow("Un article avec ce slug existe déjà : ", err));
+                return {
+                    message: "Un article avec ce slug existe déjà. Votre article n'a pas pu être enregistré."
+                };
             }
 
 
