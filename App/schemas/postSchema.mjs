@@ -16,7 +16,7 @@ const postschema = Joi.object({
     }),
 
     slug: Joi.string()
-    .pattern(new RegExp(/^[^<>&#=+*/"|{}]*$/))
+    .regex(/^[^<>&#=+*/"|{}]*$/)
     .max(100)
     .min(2)
     .trim()
@@ -30,7 +30,7 @@ const postschema = Joi.object({
     }),
 
     content: Joi.string()
-    .pattern(new RegExp(/^[^<>&#=+*/"|{}]*$/))
+    .regex(/^[^<>&#=+*/"|{}]*$/)
     .min(10)
     .trim()
     .required()
@@ -43,7 +43,7 @@ const postschema = Joi.object({
     }),
 
     excerpt: Joi.string()
-    .pattern(new RegExp(/^[^<>&#=+*/"|{}]*$/))
+    .regex(/^[^<>&#=+*/"|{}]*$/) 
     .min(10)
     .trim()
     .required()
@@ -57,7 +57,7 @@ const postschema = Joi.object({
     
 
     category: Joi.string()
-    .pattern(new RegExp(/^[^<>&#=+*/"|{}]*$/))
+    .regex(/^[^<>&#=+*/"|{}]*$/)
     .max(25)
     .min(2)
     .trim()
@@ -67,7 +67,7 @@ const postschema = Joi.object({
         'string.pattern.base': 'Le format de votre category est incorrect : Il ne doit pas être composé d\'un de ces caractéres spéciaux : [<>&#=+*/"|]',
     }),
 
-    category_id: Joi.number()
+    categoryId: Joi.number()
     .integer()
     .positive()
     .messages({
@@ -75,7 +75,7 @@ const postschema = Joi.object({
         'number.positive': `Le champs de votre category doit être un entier positif !`,
     }),
 
-}).xor('category', 'category_id');
+}).xor('category', 'categoryId');
 
 //xor permet d'accepter seulement une des deux entrée mis en paramétres
 // https://joi.dev/api/?v=17.6.0#objectxorpeers-options

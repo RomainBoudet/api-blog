@@ -32,7 +32,9 @@ class Post {
             if (!result.rows[0]) { 
                 // si pas de données
                 // le constructeur d'une Erreur attend un message en argument
-                throw new Error("Pas de post avec l'id " + id);
+                // throw new Error("Pas de post avec l'id " + id);
+                console.log(chalk.yellow(`Pas de post avec l'id ${id}`));
+                return {message:`Pas de post avec l'id ${id}`}
             }
 
             // à partir des données brutes, je crée une instance de Post
@@ -60,7 +62,9 @@ class Post {
                 `);
 
             if (!result.rows[0]) {
-                throw new Error("Pas de post en BDD !");
+                //throw new Error("Pas de post en BDD !");
+                console.log(chalk.yellow("Pas de posts en BDD !"));
+                return {message: "Pas de posts en BDD !"};
             }
 
             // et les retourne, sous forme d'instances de Post
@@ -69,7 +73,6 @@ class Post {
         } catch (error) {
 
             console.log(chalk.yellow("Erreur dans la méthode findAll du Model Post : ", error));
-
         }
 
     }
@@ -87,7 +90,9 @@ class Post {
         `, [categoryId]);
 
             if (!result.rows[0]) {
-                throw new Error("Pas de posts pour la catégorie " + categoryId);
+                // throw new Error("Pas de posts pour la catégorie " + categoryId);
+                console.log(chalk.yellow(`Pas de posts pour la catégorie avec l'identifiant ${categoryId}`));
+                return {message: `Pas de posts pour la catégorie avec l'identifiant ${categoryId}`}
             }
 
             return result.rows.map(post => new Post(post));
@@ -110,7 +115,6 @@ class Post {
         try {
 
             // Méthode flexible, qui accept l'id de la categorie ou le label de sa catégorie 
-
             let query;
 
             // toutes les données en commun sont préparées
@@ -140,6 +144,7 @@ class Post {
             // je ne pioche que les données parmi l'objet result qui m'est retourné
             try {
                 // insérer le post et récupérer son id
+
                 const {
                     rows
                 } = await db.query(query, data);
@@ -150,7 +155,9 @@ class Post {
                 return new Post (rows[0]);
 
             } catch (err) {
-                throw new Error("Un article avec ce slug existe déjà");
+               // throw new Error("Un article avec ce slug existe déjà");
+               console.log(chalk.yellow("Un article avec ce slug existe déjà : ", err));
+                return {message: "Un article avec ce slug existe déjà. Votre article n'a pas pu être enregistré."};
             }
 
 
