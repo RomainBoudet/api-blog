@@ -11,6 +11,18 @@ import clean from './MW/sanitizer.mjs';
 import postSchema from './schemas/postSchema.mjs';
 import validateBody from'./services/validator.mjs';
 
+// config du cache REDIS: invalidation du cache temporel et a chaque insertion de donnée, pour s'assurer d'une donnée fraîche
+import cacheGenerator from './MW/cache.mjs';
+const {
+    cache,
+    flush
+  } = cacheGenerator({
+    ttl: 1296000, // 3600 *24 *15 => 15 jours
+    prefix: "blog", 
+    //! si cette valeur change, faut mettre a jour le fichier nodemon.json 
+    //!et les scripts dans package.json !
+  });
+
 /**
  * Un post
  * @typedef {post} post
@@ -27,7 +39,7 @@ import validateBody from'./services/validator.mjs';
  * @summary Renvoie toutes les données sur les posts présent en BDD
  * @returns {JSON} 200 - {id, slug, title, excerpt, content, category, categoryId}
  */
-router.get('/posts', postController.allPosts);
+router.get('/posts', cache, postController.allPosts);
 
 /**
  * Renvoie le post correspondant a l'id passé en paramétre
@@ -37,7 +49,7 @@ router.get('/posts', postController.allPosts);
  * @param {number} id.path.required - l'id d'un post à fournir
  * @returns {JSON} 200 - {id, slug, title, excerpt, content, category, categoryId}
  */
-router.get('/posts/:id(\\d+)', postController.onePost);
+router.get('/posts/:id(\\d+)', cache, postController.onePost);
 
 /**
  * Renvoie les post correspondant a la catégorie passé en paramétre
@@ -47,7 +59,7 @@ router.get('/posts/:id(\\d+)', postController.onePost);
  * @param {number} id.path.required - l'id d'un post à fournir
  * @returns {JSON} 200 - {id, slug, title, excerpt, content, category, categoryId}
  */
-router.get('/posts/category/:id(\\d+)', postController.postsByCategory);
+router.get('/posts/category/:id(\\d+)', cache, postController.postsByCategory);
 
 /**
  * Une catégorie
@@ -63,7 +75,7 @@ router.get('/posts/category/:id(\\d+)', postController.postsByCategory);
  * @param {number} id.path.required - l'id d'un post à fournir
  * @returns {JSON} 200 - {id, slug, title, excerpt, content, category, categoryId}
  */
-router.get('/category', categoryController.allCategories);
+router.get('/category', cache, categoryController.allCategories);
 
 /**
  * Une route pour insérer un nouveau post. 
@@ -82,7 +94,8 @@ router.get('/category', categoryController.allCategories);
  * @param {string} categoryId.query
  * @returns {JSON} 200 - {id, slug, title, excerpt, content, categoryId}
  */
-router.post('/posts', clean, validateBody(postSchema), postController.newPost);
-
+router.post('/posts', clean, validateBody(postSchema), flush, postController.newPost);
+//! la position du flush entraine une invalidation du cache même si une érreur apparait (slug identique)
+//! et qu'auncune donnée n'est enregistré.
 
 export default router;

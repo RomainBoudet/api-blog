@@ -4,8 +4,10 @@
   "description": "A small API who can deliver Json articles for my new react front :",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.mjs",
-    "seed": "node data/import.mjs",
+    "start": "npm run clearCacheRedis && nodemon index.mjs",
+    "seed": "npm run clearRedis && node data/import.mjs",
+    "clearRedis": "redis-cli FLUSHDB",
+    "clearCacheRedis": "redis-cli --scan --pattern 'blog:*' | xargs redis-cli DEL",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
