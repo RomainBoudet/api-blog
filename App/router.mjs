@@ -49,7 +49,7 @@ router.get('/posts', cache, postController.allPosts);
  * @param {number} id.path.required - l'id d'un post à fournir
  * @returns {JSON} 200 - {id, slug, title, excerpt, content, category, categoryId}
  */
-router.get('/posts/:id(\\d+)', cache, postController.onePost);
+router.get('/post/:id(\\d+)', cache, postController.onePost);
 
 /**
  * Renvoie les post correspondant a la catégorie passé en paramétre
