@@ -1,4 +1,7 @@
-# api-blog
+
+
+(for Node.17.8.0 with NVM :
+*# api-blog
 A small API who can deliver Json articles for my new react front :
 
 ### Install :
@@ -26,5 +29,12 @@ And 1 POST route :
 * This post route allow you to insert in the same time, a new category, but only if the label of this new config changes more than two letters (with Levenstein distance).
 
 Notes : this small API use REDIS for cache and JSDoc. 😉
+
+#### To insatll Node.17.8.0 with NVM :
+* Run =>```nvm ls```
+  * if not in the list => ```nvm install 17.8.0```
+* Run => ```nvm use 17.8.0``` 
+  
+If you wouldlike to come back to the LTS => ```nvm use --lts```
 
 
