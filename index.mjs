@@ -65,7 +65,7 @@ app.set('x-powered-by', false);
 app.use(cors({
     optionsSuccessStatus: 200,
     credentials: false, // pour envoyer des cookies et des en-têtes d'autorisations faut rajouter une autorisation avec l'option credential
-    origin: ['http://localhost', 'http://127.0.0.1', `${process.env.MYIP4}`, `${process.env.MYIP6}`],//! => remplacer par le bon nom de domaine en prod..
+    origin: "*",//! => remplacer par le bon nom de domaine en prod..
     methods: "GET, HEAD, POST, OPTION",
 
 }));
