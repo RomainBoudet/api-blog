@@ -30,7 +30,9 @@ app.use(helmet.contentSecurityPolicy({
     helmet.dnsPrefetchControl({
         allow: true, 
     }),
-    helmet.expectCt({
+
+    //! Géré par NGINX....
+    /* helmet.expectCt({
         maxAge: 0,
         enforce: true, 
     }),
@@ -46,20 +48,20 @@ app.use(helmet.contentSecurityPolicy({
     helmet.expectCt({
         maxAge: 86400,
         enforce: true,
-    })
+    }) */
 
 )
 
-app.use((req, res, next) => {
+/* app.use((req, res, next) => {
     res.setHeader(
         "Permissions-Policy",
         "geolocation=(), fullscreen=(), autoplay=(), camera=(), display-capture=(), document-domain=(), fullscreen=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), sync-xhr=(), usb=(), screen-wake-lock=(), xr-spatial-tracking=()"
       );
     res.setHeader("X-XSS-Protection", "1; mode=block");
     next();
-});
+}); */
 
-app.set('x-powered-by', false);
+// app.set('x-powered-by', false);
 
 // Cross-Origin Resource Sharing => by pass le Access-Control-Allow-Origin headers
 app.use(cors({
