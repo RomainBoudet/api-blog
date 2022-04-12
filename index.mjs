@@ -75,6 +75,12 @@ app.use(express.json()); // le parser JSON qui récupère le payload quand il y 
 
 app.use('/v1', router);
 
+app.use((req, res) => {res.status(404).json({"Routes disponible GET /posts": "https://api-blog.romainboudet.fr/v1/posts",
+"Routes disponible GET /post/:id":"https://api-blog.romainboudet.fr/v1/post/1",
+"Routes disponible GET /posts/category/:id":"https://api-blog.romainboudet.fr/v1/posts/category/1",
+"Routes disponible GET /category":"https://api-blog.romainboudet.fr/v1/category",
+"Routes disponible POST /posts" : "https://api-blog.romainboudet.fr/v1/posts"})} )
+
 app.listen(port, () => {
     console.log(chalk.magenta(`En écoute sur le port ${port}`))
 });
