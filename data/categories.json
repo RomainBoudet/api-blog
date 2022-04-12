@@ -1,8 +1,5 @@
 [
-    {
-        "route": "/",
-        "label": "Accueil"
-    },
+  
     {
         "route": "/angular",
         "label": "Angular"
