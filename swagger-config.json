@@ -1,0 +1,14 @@
+{
+    "definition": {
+      "openapi": "3.0.0",
+      "info": {
+        "title": "AI-Blog",
+        "version": "1.0.0",
+        "description": "Une petite API qui délivre des articles à un front en REACT"
+      },
+      "servers": [
+        {"url":"http://localhost:5002"}
+      ]
+    },
+    "apis": ["./App/router.mjs"]
+  }

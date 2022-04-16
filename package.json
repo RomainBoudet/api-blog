@@ -31,6 +31,8 @@
     "joi": "^17.6.0",
     "pg": "^8.7.3",
     "redis": "^4.0.4",
+    "swagger-jsdoc": "^7.0.0-rc.6",
+    "swagger-ui-express": "^4.3.0",
     "validator": "^13.7.0"
   }
 }

@@ -9,11 +9,17 @@ const app = express();
 
 const port = process.env.PORT;
 
+// Swagger doc : https://swagger.io/specification/
+import swaggerConfig from './swagger-config.json' assert { type: 'json' }; //! Expérimental ! Seul la version Node 17.8 permet ça !
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
+const openapiSpecification = await swaggerJsdoc(swaggerConfig);
+
 app.set('trust proxy', true);
 
-app.use(helmet());
+//app.use(helmet());
 
-app.use(helmet.contentSecurityPolicy({
+/* app.use(helmet.contentSecurityPolicy({
         directives: {
             defaultSrc: ["'none'"],
             "script-src": ["'none'"],
@@ -30,27 +36,7 @@ app.use(helmet.contentSecurityPolicy({
     helmet.dnsPrefetchControl({
         allow: true, 
     }),
-
-    //! Géré par NGINX....
-    /* helmet.expectCt({
-        maxAge: 0,
-        enforce: true, 
-    }),
-    helmet.hsts({
-        maxAge: 31536000,
-        preload: true,
-        includeSubDomains: true,
-
-    }),
-    helmet.frameguard({
-        action: "deny",
-    }),
-    helmet.expectCt({
-        maxAge: 86400,
-        enforce: true,
-    }) */
-
-)
+) */
 
 /* app.use((req, res, next) => {
     res.setHeader(
@@ -75,11 +61,20 @@ app.use(express.json()); // le parser JSON qui récupère le payload quand il y 
 
 app.use('/v1', router);
 
-app.use((req, res) => {res.status(404).json({"Routes disponible GET /posts": "https://api-blog.romainboudet.fr/v1/posts",
+/* app.use((req, res) => {res.status(404).json({"Routes disponible GET /posts": "https://api-blog.romainboudet.fr/v1/posts",
 "Routes disponible GET /post/:id":"https://api-blog.romainboudet.fr/v1/post/1",
 "Routes disponible GET /posts/category/:id":"https://api-blog.romainboudet.fr/v1/posts/category/1",
 "Routes disponible GET /category":"https://api-blog.romainboudet.fr/v1/category",
-"Routes disponible POST /posts" : "https://api-blog.romainboudet.fr/v1/posts"})} )
+"Routes disponible POST /posts" : "https://api-blog.romainboudet.fr/v1/posts"})} ) */
+
+
+// 404
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpecification));
+app.use((_, res) => {
+    res.status(404).redirect(`/api-docs`, swaggerUi.serve, swaggerUi.setup(openapiSpecification));
+  });
+
+
 
 app.listen(port, () => {
     console.log(chalk.magenta(`En écoute sur le port ${port}`))
