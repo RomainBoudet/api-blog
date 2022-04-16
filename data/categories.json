@@ -1,4 +1,8 @@
 [
+    {
+        "route": "/",
+        "label": "Accueil"
+    },
   
     {
         "route": "/angular",
