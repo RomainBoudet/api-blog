@@ -7,7 +7,7 @@
         "description": "Une petite API qui délivre des articles à un front en REACT"
       },
       "servers": [
-        {"url":"http://localhost:5002"}
+        {"url":"http://localhost:4505/v1"}
       ]
     },
     "apis": ["./App/router.mjs"]

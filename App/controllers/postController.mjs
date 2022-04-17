@@ -29,16 +29,19 @@ const postController = {
     allPosts: async (_, res) => {
 
         try {
-
-            const posts = await Post.findAll();
-
-            res.status(200).json(posts);
+            let posts;
+            try {
+                posts = await Post.findAll();
+            } catch (error) {
+                return res.status(404).json({message: error.message})
+            }
+            return res.status(200).json(posts);
 
         } catch (err) {
             // Les érreurs du model, print en jaune, seront captées par le try catch du model !
             // Seules les érreurs du controller, print en rouge,  seront intercéptées ici !
             console.log(chalk.red('Error dans la méthode allPosts du postController : ', err));
-            res.status(500).end();
+            return res.status(500).end();
         }
 
     },
@@ -58,14 +61,20 @@ const postController = {
             const {
                 id
             } = req.params; // id du post
+            let post;
+            try {
+                post = await Post.findOne(id);
+            } catch (error) {
+                return res.status(404).send({
+                    message: error.message
+                })
+            }
 
-            const post = await Post.findOne(id);
-
-            res.status(200).json(post);
+            return res.status(200).json(post);
 
         } catch (err) {
             console.log(chalk.red('Error dans la méthode onePosts du postController : ', err));
-            res.status(500).end();
+            return res.status(500).end();
         }
     },
 
@@ -84,13 +93,19 @@ const postController = {
             const {
                 id
             } = req.params; // id de la catégorie
-
-            const posts = await Post.findByCategory(id);
-            res.status(200).json(posts);
+            let posts;
+            try {
+                posts = await Post.findByCategory(id);
+            } catch (error) {
+                return res.status(404).send({
+                    message: error.message
+                })
+            }
+            return res.status(200).json(posts);
 
         } catch (err) {
             console.log(chalk.red('Error dans la méthode postsByCategory du postController : ', err));
-            res.status(500).end();
+            return res.status(500).end();
         }
     },
 
@@ -116,51 +131,71 @@ const postController = {
         try {
 
             if (req.body.category) {
+                let categories;
+                try {
+                    categories = await Category.findAll();
+                } catch (error) {
 
+                    if (error.message !== "Aucune categorie dans la BDD !") {
 
-                const categories = await Category.findAll();
+                        let allLabels = [];
+                        categories.map(item => allLabels.push(item.label));
+    
+                        // Si la category insérée existe déja
+                        if (allLabels.includes(req.body.category)) {
+                            const thePost = new Post(req.body);
+                            let newPost;
+                            try {
+                                newPost = await thePost.save();
+                            } catch (error) {
+                                return res.status(404).json({message: error.message})    
+                            }
+                            return res.status(201).json(newPost);
+    
+                        }
+    
+                        // La category inséré n'existe pas
+                        let arrayDistance = [];
+                        for (const item of allLabels) {
+                            const theDistance = distance(req.body.category, item);
+                            arrayDistance.push(theDistance);
+                        }
+    
+                        const indexSmallDistance = arrayDistance.findIndex((elem) => elem <= 2);
+    
+                        // Ca match: une catégorie présente dans la BDD est trés proche de ce qu'a inséré le user:
+                        if (!(indexSmallDistance === -1 || indexSmallDistance === undefined)) {
+    
+                            // J'insére directement la catégory existante, le plus proche possible de sa demande !
+                            const closeCategory = closest(req.body.category, allLabels);
+    
+                            console.log(`Vous avez tenté d'insérer un aticle avec une nouvelle catégorie ('${req.body.category}'). Une catégorie très similaire a été trouvée : '${closeCategory}'. Votre catégorie insérée va être convertie en sa catégorie existante la plus proche ('${closeCategory}'). `)
+    
+                            req.body.category = closeCategory
+    
+                            const thePost = new Post(req.body);
+    
+                            let newPost = newPost;
+                            try {
+                                newPost = await thePost.save();
+                            } catch (error) {
+                                return res.status(404).send({
+                                    message: error.message
+                                })
+                            }
+    
+                            return res.status(201).json(newPost);
+                        }
+    
+                        // ici il éxiste des catégories en BDD mais la catégorie inséré est loin de ce qui existe, 
+    
+                    };
+                    // il y a une érreur dans le model category findAll et elle ne provient pas d'une absence de catégory.. :
+                    return res.status(500).end();
+
+                }
                 // Si aucune catégorie n'existe, aucune vérification nécéssaire.
-                if (categories.message !== "Aucune category dans la BDD !") {
-
-                    let allLabels = [];
-                    categories.map(item => allLabels.push(item.label));
-
-                    // Si la category insérée existe déja
-                    if (allLabels.includes(req.body.category)) {
-                        const thePost = new Post(req.body);
-                        const newPost = await thePost.save();
-                        return res.status(200).json(newPost);
-
-                    }
-
-                    // La category inséré n'existe pas
-                    let arrayDistance = [];
-                    for (const item of allLabels) {
-                        const theDistance = distance(req.body.category, item);
-                        arrayDistance.push(theDistance);
-                    }
-
-                    const indexSmallDistance = arrayDistance.findIndex((elem) => elem <= 2);
-
-                    // Ca match: une catégorie présente dans la BDD est trés proche de ce qu'a inséré le user:
-                    if (!(indexSmallDistance === -1 || indexSmallDistance === undefined)) {
-
-                        // J'insére directement la catégory existante, le plus proche possible de sa demande !
-                        const closeCategory = closest(req.body.category, allLabels);
-
-                        console.log(`Vous avez tenté d'insérer un aticle avec une nouvelle catégorie ('${req.body.category}'). Une catégorie très similaire a été trouvée : '${closeCategory}'. Votre catégorie insérée va être convertie en sa catégorie existante la plus proche ('${closeCategory}'). `)
-
-                        req.body.category = closeCategory
-
-                        const thePost = new Post(req.body);
-                        const newPost = await thePost.save();
-
-                        return res.status(200).json(newPost);
-                    }
-
-                    // ici il éxiste des catégories en BDD mais la catégorie inséré est loin de ce qui existe, 
-
-                };
+               
 
                 // ici il n'existe pas de category déjé enregistrées en BDD
                 console.log("req.body.category => ", req.body.category);
@@ -169,21 +204,35 @@ const postController = {
                     route: `/${req.body.category.replace(' ', '_').toLowerCase()}`,
                     label: `${req.body.category}`
                 });
-                await theCategory.save();
+
+                try {
+                    await theCategory.save();
+                } catch (error) {
+                    return res.status(404).send({
+                        message: error.message
+                    })
+
+                }
 
             }
 
             // ici il n'y a pas de catégory dans le body mais un categoryId !
 
             const thePost = new Post(req.body);
-            const newPost = await thePost.save();
+            
+            let newPost;
+            try {
+                newPost = await thePost.save();
+            } catch (error) {
+                return res.status(404).json({message: error.message}); 
+            }
 
-            res.status(200).json(newPost);
+            return res.status(201).json(newPost);
 
         } catch (err) {
 
             console.log(chalk.red('Error dans la méthode newPost du postController : ', err));
-            res.status(500).end();
+            return res.status(500).end();
         }
     }
 };
