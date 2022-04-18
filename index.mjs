@@ -44,7 +44,7 @@ app.use(helmet.contentSecurityPolicy({
 app.use(cors({
     optionsSuccessStatus: 200,
     credentials: false, // pour envoyer des cookies et des en-têtes d'autorisations faut rajouter une autorisation avec l'option credential
-    origin: "*",//! => remplacer par le bon nom de domaine en prod..
+    origin: ["https://api-blog.romainboudet.fr", "https://blog.romainboudet.fr"],//! => remplacer par le bon nom de domaine en prod..
     methods: "GET, HEAD, POST, OPTION",
 }));
 
