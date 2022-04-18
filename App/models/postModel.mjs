@@ -29,8 +29,9 @@ class Post {
      * @async - une méthode asynchrone
      */
     static async findOne(id) {
-
-        try {
+        // ! ATTENTION, si je met un try catch ici l'info de l'érreur n'est pas remonté dans le controller de
+        //! et je ne peux pas renvoyer l'info proprement via res.status(404).json({mon message provenant du model})
+        //try {
             const result = await db.query(`
             SELECT
                 post.*,
@@ -43,20 +44,20 @@ class Post {
             if (!result.rows[0]) {
                 // si pas de données
                 // le constructeur d'une Erreur attend un message en argument
-                // throw new Error("Pas de post avec l'id " + id);
                 console.log(chalk.yellow(`Pas de post avec l'id ${id}`));
-                return {
+                throw new Error(`Il n'existe pas d'article avec l'id ${id}`);
+                /* return {
                     message: `Pas de post avec l'id ${id}`
-                }
+                } */
             }
 
             // à partir des données brutes, je crée une instance de Post
             return new Post(result.rows[0]);
 
-        } catch (error) {
+       // } catch (error) {
 
-            console.log(chalk.yellow("Erreur dans la méthode findOne du Model Post : ", error));
-        }
+            //console.log(chalk.yellow("Erreur dans la méthode findOne du Model Post : ", error));
+       // }
 
     }
 
@@ -67,8 +68,6 @@ class Post {
      * @async - une méthode asynchrone
      */
     static async findAll() {
-
-        try {
 
             // va chercher tous les posts dans la bdd
             const result = await db.query(`
@@ -81,19 +80,13 @@ class Post {
 
             if (!result.rows[0]) {
                 //throw new Error("Pas de post en BDD !");
-                console.log(chalk.yellow("Pas de posts en BDD !"));
-                return {
-                    message: "Pas de posts en BDD !"
-                };
+                console.log(chalk.yellow("Pas d'article en BDD !"));
+                throw new Error("Il n'éxiste pas d'article en BDD !");
+
             }
 
             // et les retourne, sous forme d'instances de Post
             return result.rows.map(post => new Post(post));
-
-        } catch (error) {
-
-            console.log(chalk.yellow("Erreur dans la méthode findAll du Model Post : ", error));
-        }
 
     }
 
@@ -106,7 +99,7 @@ class Post {
      */
     static async findByCategory(categoryId) {
 
-        try {
+       
             const result = await db.query(`
             SELECT
                 post.*,
@@ -118,19 +111,12 @@ class Post {
 
             if (!result.rows[0]) {
                 // throw new Error("Pas de posts pour la catégorie " + categoryId);
-                console.log(chalk.yellow(`Pas de posts pour la catégorie avec l'identifiant ${categoryId}`));
-                return {
-                    message: `Pas de posts pour la catégorie avec l'identifiant ${categoryId}`
-                }
+                
+                console.log(chalk.yellow(`Pas d'articles pour la catégorie avec l'identifiant ${categoryId}`));
+                throw new Error(`Pas d'articles pour la catégorie avec l'identifiant ${categoryId}`);
             }
 
             return result.rows.map(post => new Post(post));
-
-        } catch (error) {
-
-            console.log(chalk.yellow("Erreur dans la méthode findByCategory du Model Post : ", error));
-
-        }
 
     }
 
@@ -141,8 +127,6 @@ class Post {
      * @async - une méthode asynchrone
      */
     async save() {
-
-        try {
 
             // Méthode flexible, qui accept l'id de la categorie ou le label de sa catégorie 
             let query;
@@ -185,19 +169,10 @@ class Post {
                 return new Post(rows[0]);
 
             } catch (err) {
-                // throw new Error("Un article avec ce slug existe déjà");
-                console.log(chalk.yellow("Un article avec ce slug existe déjà : ", err));
-                return {
-                    message: "Un article avec ce slug existe déjà. Votre article n'a pas pu être enregistré."
-                };
+                console.log(chalk.yellow("Un article avec ce slug ou ce titre existe déjà : ", err));
+                throw new Error("Un article avec ce slug ou ce titre existe déjà. Votre article n'a pas pu être enregistré.");
             }
 
-
-
-        } catch (error) {
-
-            console.log(chalk.yellow("Erreur dans la méthode save du Model Post : ", error));
-        }
 
 
     }

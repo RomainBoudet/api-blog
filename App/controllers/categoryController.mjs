@@ -21,8 +21,13 @@ const categoryController = {
     allCategories: async (_, res) => {
 
         try {
-
-        const categories = await Category.findAll();
+            let categories;
+            
+        try {
+            categories = await Category.findAll();
+        } catch (error) {
+            return res.status(404).json({message : error.message});
+        }
 
         res.status(200).json(categories);
 

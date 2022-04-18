@@ -11,6 +11,9 @@ import clean from './MW/sanitizer.mjs';
 import postSchema from './schemas/postSchema.mjs';
 import validateBody from'./services/validator.mjs';
 
+
+
+
 // config du cache REDIS: invalidation du cache temporel et a chaque insertion de donnée, pour s'assurer d'une donnée fraîche
 import cacheGenerator from './MW/cache.mjs';
 const {
@@ -23,79 +26,330 @@ const {
     //!et les scripts dans package.json !
   });
 
+  // NOTE
+  // ressources : 
+  // npm : https://www.npmjs.com/package/swagger-ui-express
+  // npm : https://www.npmjs.com/package/swagger-jsdoc
+  // doc :https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html
+  // doc : https://swagger.io/specification/
+  // blog exemple :https://dev.to/kabartolo/how-to-document-an-express-api-with-swagger-ui-and-jsdoc-50do 
+  // exemple : https://github.com/satansdeer/swagger-api-library/blob/master/routes/books.js 
+  // exemple : https://www.youtube.com/watch?v=S8kmHtQeflo 
+
 /**
- * Un post
- * @typedef {post} post
- * @property {string} slug - Lien de navigation visible das la barre d'url
- * @property {string} title - Le titre d'un post
- * @property {string} excerpt - Le résumé d'un post
- * @property {string} content - Le contenu d'un post
- * @property {string} category - La catégorie d'un post
+ * @swagger
+ * components:
+ *   schemas:
+ *     article:
+ *       type: object
+ *       required:
+ *         - category
+ *         - slug
+ *         - title
+ *         - excerpt
+ *         - content 
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: L'id de l'article
+ *           example: 1
+ *         title:
+ *           type: string
+ *           description: Le titre de l'article
+ *           example: Angular, une fausse bonne idée ? 
+ *         slug:
+ *           type: string
+ *           description: Le slug de l'article
+ *           example: angular-une-fausse-bonne-idee
+ *         excerpt:
+ *           type: string
+ *           description: Le résumé de l'article
+ *           example: Laboris nisi ut aliquip ex ea
+ *         content: 
+ *           type: string
+ *           description: Le contenu de l'article
+ *           example: Voluptate velit esse cillum dolore eu.   
+ *         category:
+ *           type: string
+ *           description: Le nom de la categorie
+ *           example: Angular
+ *         categoryId: 
+ *           type: integer
+ *           description: L'identifiant de la categorie de l'article
+ *           example: 2
  */
+
+ /**
+  * @swagger
+  * tags:
+  *   name: Article
+  *   description: La gestion de mes artcles
+  */
+
 /**
- * Renvoie tous les posts présent en base de donnée
- * @route GET /v1/posts
- * @group post - Pour récupérer tous les articles de l'API
- * @summary Renvoie toutes les données sur les posts présent en BDD
- * @returns {JSON} 200 - {id, slug, title, excerpt, content, category, categoryId}
+ * @swagger
+ * /posts:
+ *   get:
+ *     summary: Renvoie tous les articles
+ *     tags: [Article]
+ *     responses:
+ *       200:
+ *         description: La liste de tous les articles
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/article'
+ *       404:
+ *         description: Il n'existe pas d'articles en BDD
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: L'érreur à l'origine de la 404
+ *                   example: Il n'éxiste pas d'article en BDD !
+ *       500:
+ *         description: Erreur du serveur
  */
 router.get('/posts', cache, postController.allPosts);
 
 /**
- * Renvoie le post correspondant a l'id passé en paramétre
- * @route GET /v1/posts/:id
- * @group post - Pour récupérer l'article avec l'identifiant en paramétre
- * @summary Renvoie toutes les données d'un post
- * @param {number} id.path.required - l'id d'un post à fournir
- * @returns {JSON} 200 - {id, slug, title, excerpt, content, category, categoryId}
+ * @swagger
+ * /post/{id}:
+ *   get:
+ *     summary: Renvoie un article selon son identifiant
+ *     tags: [Article]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description:  L'identifiant de l'article
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: L'article selon son identifiant
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               $ref: '#/components/schemas/article'
+ * 
+ *       404:
+ *         description: Il n'existe pas d'article avec l'id {id}
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: L'érreur à l'origine de la 404
+ *                   example: Il n'existe pas d'article avec l'id 400
+ *       500:
+ *         description: Erreur du serveur
  */
-router.get('/post/:id(\\d+)', cache, postController.onePost);
+router.get('/post/:id(\\d+)',cache, postController.onePost);
 
 /**
- * Renvoie les post correspondant a la catégorie passé en paramétre
- * @route GET /posts/category/:id
- * @group post - Pour récupérer les posts ayant l'identifiant de la catégorie en paramétre
- * @summary Renvoie toutes les données sur les posts présent dans la catégorie
- * @param {number} id.path.required - l'id d'un post à fournir
- * @returns {JSON} 200 - {id, slug, title, excerpt, content, category, categoryId}
+ * @swagger
+ * /posts/category/{id}:
+ *   get:
+ *     summary: Renvoie une liste d'articles selon l'identifiant d'une catégorie
+ *     tags: [Article]
+ *     parameters:
+ *       - in: path # peut être query ou body ici, et définir plus finement que tout le request.body
+ *         name: id
+ *         required: true
+ *         description:  L'identifiant d'une catégorie
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: La liste des articles correspondant à cet identifiant de catégorie
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/article'
+ * 
+ *       404:
+ *         description: Il n'existe pas d'article avec l'id {id}
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: L'érreur à l'origine de la 404
+ *                   example: Pas d'articles pour la catégorie avec l'identifiant 765
+ *       500:
+ *         description: Erreur du serveur
  */
 router.get('/posts/category/:id(\\d+)', cache, postController.postsByCategory);
 
 /**
- * Une catégorie
- * @typedef {post} post
- * @property {string} route - La route a contacté pour avoir les articles de cette catégorie
- * @property {string} label - Le nom d'une catégorie
+ * @swagger
+ * components:
+ *   schemas:
+ *     categorie:
+ *       type: object
+ *       required:
+ *         - route
+ *         - label
+ *       properties:
+ *         id:
+ *           type: integer
+ *           description: L'id de l'article
+ *           example: 1
+ *         route:
+ *           type: string
+ *           description: La route a contacter pour avoir les articles de cette catégorie
+ *           example: /angular 
+ *         label:
+ *           type: string
+ *           description: Le nom de la categorie
+ *           example: Angular
  */
-/**
- * Renvoie toutes les catégories 
- * @route GET /category
- * @group category - Pour récupérer les posts ayant l'identifiant de la catégorie en paramétre
- * @summary Renvoie toutes les données sur les posts présent dans la catégorie
- * @param {number} id.path.required - l'id d'un post à fournir
- * @returns {JSON} 200 - {id, slug, title, excerpt, content, category, categoryId}
+
+ /**
+  * @swagger
+  * tags:
+  *   name: Categories
+  *   description: La gestion de mes categories d'articles
+  */
+
+ /**
+ * @swagger
+ * /category:
+ *   get:
+ *     summary: Renvoie toutes les catégories existantes
+ *     tags: [Categories]
+ *     responses:
+ *       200:
+ *         description: La liste de toutes les catégories
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/categorie'
+  *       404:
+ *         description: Il n'existe pas de catégories en BDD
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: L'érreur à l'origine de la 404
+ *                   example: Il n'éxiste pas de catégories en BDD !
+ *       500:
+ *         description: Erreur du serveur
  */
 router.get('/category', cache, categoryController.allCategories);
 
 /**
- * Une route pour insérer un nouveau post. 
- * Pour relier le post a une catégorie, soit l'id de la catégorie (number) ou son label (string) son requis.
- * On utilise la distance de Levenstein pour déterminer si une category éxistante très similaire existe déja. 
- * Si oui, on la remplace par celle éxistante. 
- * on permet également d'insérer une nouvelle catégorie, en amont d'un nouvel articles, si elle n'est pas déja présente dans la BDD.
- * @route POST /posts
- * @group post
- * @summary  
- * @param {string} title.body.required
- * @param {string} slug.body.required
- * @param {number} content.body.required
- * @param {string} excerpt.query.required
- * @param {string} category.query
- * @param {string} categoryId.query
- * @returns {JSON} 200 - {id, slug, title, excerpt, content, categoryId}
+ * @swagger
+ * /posts:
+ *   post:
+ *     summary: Renvoie l'article nouvellement créé et permet également d'insérer une nouvelle catégorie avec le nouvel article !
+ *     tags: [Article]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Le titre de l'article. Doit être unique.
+ *                 example: Next, le meilleur framework complémentaire a React ?
+ *               category:
+ *                 type: string
+ *                 description: > 
+ *                            Le titre de la catégorie de l'article OU son identifiant (integer) via "categoryId".
+ *                            Si le nom d'une catégorie est trés similaire a une catégorie déja éxistante, 
+ *                            ce nouveau nom de catégorie sera remplacé par celui déja éxistant. 
+ *                 example: React
+ *               slug:
+ *                 type: string
+ *                 description: Le slug de l'article. Doit être unique.
+ *                 example: next-le-meilleur-framework-front-?
+ *               excerpt:
+ *                 type: string
+ *                 description: Le résumé de l'article.
+ *                 example: Ut enim ad minim veniam, quis nostrud exercitation
+ *               content:
+ *                 type: string
+ *                 description: Le contenu de l'article.
+ *                 example: Le contenu de l'article.
+ *     responses:
+ *       201:
+ *         description: L'article nouvellement créé
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   description: L'id de l'article
+ *                   example: 1
+ *                 title:
+ *                   type: string
+ *                   description: Le titre de l'article
+ *                   example: Angular, une fausse bonne idée ? 
+ *                 slug:
+ *                   type: string
+ *                   description: Le slug de l'article
+ *                   example: angular-une-fausse-bonne-idee
+ *                 excerpt:
+ *                   type: string
+ *                   description: Le résumé de l'article
+ *                   example: Laboris nisi ut aliquip ex ea
+ *                 content: 
+ *                   type: string
+ *                   description: Le contenu de l'article
+ *                   example: Voluptate velit esse cillum dolore eu.   
+ *                 categoryId: 
+ *                   type: integer
+ *                   description: L'identifiant de la categorie de l'article
+ *                   example: 2
+ *                 message:
+ *                   type: string
+ *                   description: Une information complémentaire, sur le traitement effectué.
+ *                   example: > 
+ *                          Vous avez tenté d'insérer un aticle avec une nouvelle catégorie
+ *                          : Eact. Une catégorie très similaire a été trouvée : React.
+ *                          Votre catégorie insérée va être convertie en sa catégorie existante la plus proche : React
+ * 
+ *       404:
+ *         description: Il n'existe pas d'article avec l'id {id}
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   description: L'érreur à l'origine de la 404
+ *                   example: Un article avec ce slug existe déjà. Votre article n'a pas pu être enregistré.
+ *       500:
+ *         description: Erreur du serveur
  */
 router.post('/posts', clean, validateBody(postSchema), flush, postController.newPost);
 //! la position du flush entraine une invalidation du cache même si une érreur apparait (slug identique)
 //! et qu'auncune donnée n'est enregistré.
+
+
 
 export default router;

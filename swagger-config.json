@@ -1,0 +1,21 @@
+{
+    "definition": {
+      "openapi": "3.0.0",
+      "info": {
+        "title": "API-Blog",
+        "version": "1.0.0",
+        "description": "Une petite API qui délivre des articles à un front en REACT"
+      },
+      "servers": [
+        {
+          "url":"http://localhost:4505/v1",
+          "description": "serveur de developpement"
+        },
+        {
+          "url":"https://api-blog.romainboudet.fr/v1",
+          "description": "serveur de production"
+        }
+      ]
+    },
+    "apis": ["./App/router.mjs"]
+  }

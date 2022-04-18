@@ -36,7 +36,7 @@ CREATE TABLE category (
 create table post (
 id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
 slug text_valid UNIQUE NOT NULL,
-title text_valid NOT NULL,
+title text_valid UNIQUE NOT NULL,
 excerpt text_length NOT NULL,
 content text_length NOT NULL,
 category_id INT NOT NULL REFERENCES category(id)

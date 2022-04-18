@@ -9,19 +9,27 @@ const app = express();
 
 const port = process.env.PORT;
 
+// Swagger doc : https://swagger.io/specification/
+// (Plus de ressource dans le fichier router.mjs)
+import swaggerConfig from './swagger-config.json' assert { type: 'json' }; //! Expérimental ! Seul la version Node 17.8 permet ça !
+import swaggerUi from 'swagger-ui-express';
+import swaggerJsdoc from 'swagger-jsdoc';
+const openapiSpecification = await swaggerJsdoc(swaggerConfig);
+
 app.set('trust proxy', true);
 
-app.use(helmet());
-
+// CSP pour swagger !
+// Faillible ? https://bhavesh-thakur.medium.com/content-security-policy-csp-bypass-techniques-e3fa475bfe5d 
+// test : 1. https://csp-evaluator.withgoogle.com/  2. https://cspvalidator.org/
 app.use(helmet.contentSecurityPolicy({
         directives: {
             defaultSrc: ["'none'"],
-            "script-src": ["'none'"],
+            "script-src": ["'self'"],
             "font-src": ["'none'"],
-            "style-src": ["'none'"],
+            "style-src": ["'self'"], // reste du rouge en console avec des inlines style de swagger..
             "base-uri": ["'none'"],
             "object-src": ["'none'"],
-            "connect-src": ["'none'"],
+            "connect-src": ["'self'"], //si 'none', je peux plus utiliser curl avec la doc swagger ! 
             "form-action": ["'none'"],
             upgradeInsecureRequests: []
         },
@@ -30,38 +38,7 @@ app.use(helmet.contentSecurityPolicy({
     helmet.dnsPrefetchControl({
         allow: true, 
     }),
-
-    //! Géré par NGINX....
-    /* helmet.expectCt({
-        maxAge: 0,
-        enforce: true, 
-    }),
-    helmet.hsts({
-        maxAge: 31536000,
-        preload: true,
-        includeSubDomains: true,
-
-    }),
-    helmet.frameguard({
-        action: "deny",
-    }),
-    helmet.expectCt({
-        maxAge: 86400,
-        enforce: true,
-    }) */
-
 )
-
-/* app.use((req, res, next) => {
-    res.setHeader(
-        "Permissions-Policy",
-        "geolocation=(), fullscreen=(), autoplay=(), camera=(), display-capture=(), document-domain=(), fullscreen=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), sync-xhr=(), usb=(), screen-wake-lock=(), xr-spatial-tracking=()"
-      );
-    res.setHeader("X-XSS-Protection", "1; mode=block");
-    next();
-}); */
-
-// app.set('x-powered-by', false);
 
 // Cross-Origin Resource Sharing => by pass le Access-Control-Allow-Origin headers
 app.use(cors({
@@ -69,17 +46,17 @@ app.use(cors({
     credentials: false, // pour envoyer des cookies et des en-têtes d'autorisations faut rajouter une autorisation avec l'option credential
     origin: "*",//! => remplacer par le bon nom de domaine en prod..
     methods: "GET, HEAD, POST, OPTION",
-
 }));
+
 app.use(express.json()); // le parser JSON qui récupère le payload quand il y en a un et le transforme en objet JS disponible sous request.body
 
 app.use('/v1', router);
 
-app.use((req, res) => {res.status(404).json({"Routes disponible GET /posts": "https://api-blog.romainboudet.fr/v1/posts",
-"Routes disponible GET /post/:id":"https://api-blog.romainboudet.fr/v1/post/1",
-"Routes disponible GET /posts/category/:id":"https://api-blog.romainboudet.fr/v1/posts/category/1",
-"Routes disponible GET /category":"https://api-blog.romainboudet.fr/v1/category",
-"Routes disponible POST /posts" : "https://api-blog.romainboudet.fr/v1/posts"})} )
+// 404 => la doc swagger
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openapiSpecification));
+app.use((_, res) => {
+    res.status(404).redirect(`/api-docs`, swaggerUi.serve, swaggerUi.setup(openapiSpecification));
+  });
 
 app.listen(port, () => {
     console.log(chalk.magenta(`En écoute sur le port ${port}`))

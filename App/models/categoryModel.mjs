@@ -20,29 +20,48 @@ class Category {
      * @async - une méthode asynchrone
      */
     static async findAll() {
-        try {
-
+        //try {
             const {
                 rows
             } = await db.query('SELECT * FROM category;');
 
             if (!rows[0]) {
-                //throw new Error("Aucune category dans la BDD");
+                
                 console.log(chalk.yellow("Aucune category dans la BDD !"));
-                return {
-                    message: "Aucune category dans la BDD !" //! (utilisé dans la méthode newPost du postController)
-                };
+                throw new Error("Il n'éxiste pas de catégories en BDD !"); //! (utilisé dans la méthode newPost du postController)
+                /* return {
+                    message: "Aucune category dans la BDD !" 
+                }; */
             }
 
             return rows.map(cat => new Category(cat));
 
-
-        } catch (error) {
+        /* } catch (error) {
 
             console.log(chalk.yellow("Erreur dans la méthode findAll du Model Category : ", error));
 
-        }
+        } */
 
+    }
+
+    /**
+     * Méthode chargé d'aller chercher toutes les informations relatives à toutes les catégories (label et route). 
+     * UTILISÉ UNIQUEMENT PAR L'APPLI ELLE MÊME, AVEC UNE GESTION DE L'ERREUR EN CAS D'ABSENCE DE CATEGORY QUI NE RETOURNE PAS D'ERREUR...
+     * @returns - les informations de toutes les catégories présentes en BDD
+     * @static - une méthode static
+     * @async - une méthode asynchrone
+     */
+     static async findAllInternal() {
+            const {
+                rows
+            } = await db.query('SELECT * FROM category;');
+
+            if (!rows[0]) {
+                console.log(chalk.yellow("Aucune category dans la BDD ! (categoryModel - findAllInternal)"));
+                return [];
+            }
+
+            return rows.map(cat => new Category(cat));
     }
 
     /**
@@ -72,6 +91,8 @@ class Category {
         } catch (error) {
 
             console.log(chalk.yellow("Erreur dans la méthode save du Model Category : ", error));
+            // message lié a l'article alors qu'on est dans catégory car le seul endroit ou est utilisé cette methode est lors de la création d'un nouvel article !
+            throw new Error("Vous avez essayer d'insérer un article avec une catégorie déja existante. Chaque categorie doit être unique. Votre article n'a pas pu être enregistré. Merci de réessayer avec une catégorie non existante.");
 
         }
 
