@@ -169,8 +169,8 @@ class Post {
                 return new Post(rows[0]);
 
             } catch (err) {
-                console.log(chalk.yellow("Un article avec ce slug existe déjà : ", err));
-                throw new Error("Un article avec ce slug existe déjà. Votre article n'a pas pu être enregistré.");
+                console.log(chalk.yellow("Un article avec ce slug ou ce titre existe déjà : ", err));
+                throw new Error("Un article avec ce slug ou ce titre existe déjà. Votre article n'a pas pu être enregistré.");
             }
 
 

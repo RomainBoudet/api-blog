@@ -27,10 +27,14 @@ const {
   });
 
   // NOTE
-  // ressource : 
-  // https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html
-  // https://swagger.io/specification/
+  // ressources : 
+  // npm : https://www.npmjs.com/package/swagger-ui-express
+  // npm : https://www.npmjs.com/package/swagger-jsdoc
+  // doc :https://docs.ansible.com/ansible/latest/reference_appendices/YAMLSyntax.html
+  // doc : https://swagger.io/specification/
+  // blog exemple :https://dev.to/kabartolo/how-to-document-an-express-api-with-swagger-ui-and-jsdoc-50do 
   // exemple : https://github.com/satansdeer/swagger-api-library/blob/master/routes/books.js 
+  // exemple : https://www.youtube.com/watch?v=S8kmHtQeflo 
 
 /**
  * @swagger
@@ -108,6 +112,8 @@ const {
  *                   type: string
  *                   description: L'érreur à l'origine de la 404
  *                   example: Il n'éxiste pas d'article en BDD !
+ *       500:
+ *         description: Erreur du serveur
  */
 router.get('/posts', cache, postController.allPosts);
 
@@ -144,6 +150,8 @@ router.get('/posts', cache, postController.allPosts);
  *                   type: string
  *                   description: L'érreur à l'origine de la 404
  *                   example: Il n'existe pas d'article avec l'id 400
+ *       500:
+ *         description: Erreur du serveur
  */
 router.get('/post/:id(\\d+)',cache, postController.onePost);
 
@@ -154,7 +162,7 @@ router.get('/post/:id(\\d+)',cache, postController.onePost);
  *     summary: Renvoie une liste d'articles selon l'identifiant d'une catégorie
  *     tags: [Article]
  *     parameters:
- *       - in: path
+ *       - in: path # peut être query ou body ici, et définir plus finement que tout le request.body
  *         name: id
  *         required: true
  *         description:  L'identifiant d'une catégorie
@@ -181,6 +189,8 @@ router.get('/post/:id(\\d+)',cache, postController.onePost);
  *                   type: string
  *                   description: L'érreur à l'origine de la 404
  *                   example: Pas d'articles pour la catégorie avec l'identifiant 765
+ *       500:
+ *         description: Erreur du serveur
  */
 router.get('/posts/category/:id(\\d+)', cache, postController.postsByCategory);
 
@@ -200,7 +210,7 @@ router.get('/posts/category/:id(\\d+)', cache, postController.postsByCategory);
  *           example: 1
  *         route:
  *           type: string
- *           description: La route a contacté pour avoir les articles de cette catégorie
+ *           description: La route a contacter pour avoir les articles de cette catégorie
  *           example: /angular 
  *         label:
  *           type: string
@@ -241,14 +251,16 @@ router.get('/posts/category/:id(\\d+)', cache, postController.postsByCategory);
  *                   type: string
  *                   description: L'érreur à l'origine de la 404
  *                   example: Il n'éxiste pas de catégories en BDD !
+ *       500:
+ *         description: Erreur du serveur
  */
 router.get('/category', cache, categoryController.allCategories);
 
 /**
  * @swagger
- * /post:
+ * /posts:
  *   post:
- *     summary: Renvoie l'article nouvellement créé
+ *     summary: Renvoie l'article nouvellement créé et permet également d'insérer une nouvelle catégorie avec le nouvel article !
  *     tags: [Article]
  *     requestBody:
  *       required: true
@@ -259,12 +271,27 @@ router.get('/category', cache, categoryController.allCategories);
  *             properties:
  *               title:
  *                 type: string
- *                 description: Le titre de l'article
- *                 example: React, le meilleur framework front ?
+ *                 description: Le titre de l'article. Doit être unique.
+ *                 example: Next, le meilleur framework complémentaire a React ?
  *               category:
- *                 type: string / integer
- *                 description: Le titre de la catégorie de l'article OU son identifiant
- *                 example: React / 3
+ *                 type: string
+ *                 description: > 
+ *                            Le titre de la catégorie de l'article OU son identifiant (integer) via "categoryId".
+ *                            Si le nom d'une catégorie est trés similaire a une catégorie déja éxistante, 
+ *                            ce nouveau nom de catégorie sera remplacé par celui déja éxistant. 
+ *                 example: React
+ *               slug:
+ *                 type: string
+ *                 description: Le slug de l'article. Doit être unique.
+ *                 example: next-le-meilleur-framework-front-?
+ *               excerpt:
+ *                 type: string
+ *                 description: Le résumé de l'article.
+ *                 example: Ut enim ad minim veniam, quis nostrud exercitation
+ *               content:
+ *                 type: string
+ *                 description: Le contenu de l'article.
+ *                 example: Le contenu de l'article.
  *     responses:
  *       201:
  *         description: L'article nouvellement créé
@@ -272,7 +299,38 @@ router.get('/category', cache, categoryController.allCategories);
  *           application/json:
  *             schema:
  *               type: object
- *               $ref: '#/components/schemas/article'
+ *               properties:
+ *                 id:
+ *                   type: integer
+ *                   description: L'id de l'article
+ *                   example: 1
+ *                 title:
+ *                   type: string
+ *                   description: Le titre de l'article
+ *                   example: Angular, une fausse bonne idée ? 
+ *                 slug:
+ *                   type: string
+ *                   description: Le slug de l'article
+ *                   example: angular-une-fausse-bonne-idee
+ *                 excerpt:
+ *                   type: string
+ *                   description: Le résumé de l'article
+ *                   example: Laboris nisi ut aliquip ex ea
+ *                 content: 
+ *                   type: string
+ *                   description: Le contenu de l'article
+ *                   example: Voluptate velit esse cillum dolore eu.   
+ *                 categoryId: 
+ *                   type: integer
+ *                   description: L'identifiant de la categorie de l'article
+ *                   example: 2
+ *                 message:
+ *                   type: string
+ *                   description: Une information complémentaire, sur le traitement effectué.
+ *                   example: > 
+ *                          Vous avez tenté d'insérer un aticle avec une nouvelle catégorie
+ *                          : Eact. Une catégorie très similaire a été trouvée : React.
+ *                          Votre catégorie insérée va être convertie en sa catégorie existante la plus proche : React
  * 
  *       404:
  *         description: Il n'existe pas d'article avec l'id {id}
@@ -285,6 +343,8 @@ router.get('/category', cache, categoryController.allCategories);
  *                   type: string
  *                   description: L'érreur à l'origine de la 404
  *                   example: Un article avec ce slug existe déjà. Votre article n'a pas pu être enregistré.
+ *       500:
+ *         description: Erreur du serveur
  */
 router.post('/posts', clean, validateBody(postSchema), flush, postController.newPost);
 //! la position du flush entraine une invalidation du cache même si une érreur apparait (slug identique)

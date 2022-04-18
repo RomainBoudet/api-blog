@@ -45,6 +45,26 @@ class Category {
     }
 
     /**
+     * Méthode chargé d'aller chercher toutes les informations relatives à toutes les catégories (label et route). 
+     * UTILISÉ UNIQUEMENT PAR L'APPLI ELLE MÊME, AVEC UNE GESTION DE L'ERREUR EN CAS D'ABSENCE DE CATEGORY QUI NE RETOURNE PAS D'ERREUR...
+     * @returns - les informations de toutes les catégories présentes en BDD
+     * @static - une méthode static
+     * @async - une méthode asynchrone
+     */
+     static async findAllInternal() {
+            const {
+                rows
+            } = await db.query('SELECT * FROM category;');
+
+            if (!rows[0]) {
+                console.log(chalk.yellow("Aucune category dans la BDD ! (categoryModel - findAllInternal)"));
+                return [];
+            }
+
+            return rows.map(cat => new Category(cat));
+    }
+
+    /**
      * Méthode chargé d'aller insérer les informations relatives à une catégorie passé en paramétre
      * @param route - la route d'une catégorie
      * @param label - le label d'une catégorie
