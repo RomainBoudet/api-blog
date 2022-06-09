@@ -1,7 +1,6 @@
 
 
-(for Node.17.8.0 with NVM :
-*# api-blog
+api-blog
 A small API who can deliver Json articles for my new react front :
 
 ### Install :
