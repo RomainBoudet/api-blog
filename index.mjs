@@ -11,7 +11,15 @@ const port = process.env.PORT;
 
 // Swagger doc : https://swagger.io/specification/
 // (Plus de ressource dans le fichier router.mjs)
-import swaggerConfig from './swagger-config.json' assert { type: 'json' }; //! Expérimental ! Seul la version Node 17.8 permet ça !
+
+// ancienne méthode mais plante sur un server tournant avec la LTS. Et si on passe en 17.8.0 : erreur au build....
+// source => https://www.stefanjudis.com/snippets/how-to-import-json-files-in-es-modules-node-js/
+// import swaggerConfig from './swagger-config.json' assert { type: 'json' }; //! Expérimental ! Seul la version Node 17.8 permet ça !
+
+import { createRequire } from "module";
+const require = createRequire(import.meta.url);
+const swaggerConfig = require("./swagger-config.json");
+
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
 const openapiSpecification = await swaggerJsdoc(swaggerConfig);
