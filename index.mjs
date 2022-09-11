@@ -48,11 +48,13 @@ app.use(helmet.contentSecurityPolicy({
     }),
 )
 
+//! ATTENTION DE BIEN LANCER L'API EN NODE VERSION LT (nvm install -lts) sinon ca plante sur le server !
+
 // Cross-Origin Resource Sharing => by pass le Access-Control-Allow-Origin headers
 app.use(cors({
     optionsSuccessStatus: 200,
     credentials: false, // pour envoyer des cookies et des en-têtes d'autorisations faut rajouter une autorisation avec l'option credential
-    origin: ["https://api-blog.romainboudet.fr", "https://blog.romainboudet.fr"],//! => remplacer par le bon nom de domaine en prod..
+    origin: ["http://localhost:8090", "https://blog.romainboudet.fr"],//! => remplacer par le bon nom de domaine en prod..
     methods: "GET, HEAD, POST, OPTION",
 }));
 
